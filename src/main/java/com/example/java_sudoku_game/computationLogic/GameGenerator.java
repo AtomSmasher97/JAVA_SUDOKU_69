@@ -125,8 +125,7 @@ class GameGenerator {
             //check if result is solvable
             solvable = SudokuSolver.puzzleIsSolvable(toBeSolved);
 
-            //TODO Delete after tests
-            System.out.println(solvable);
+
         }
 
         return solvableArray;
