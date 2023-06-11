@@ -1,4 +1,4 @@
-package com.example.java_sudoku_game;
+package com.example.java_sudoku_game.userInterface;
 
 import javafx.scene.control.TextField;
 

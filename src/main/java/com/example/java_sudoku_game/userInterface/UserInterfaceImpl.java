@@ -1,9 +1,8 @@
 package com.example.java_sudoku_game.userInterface;
-import  com.example.java_sudoku_game.problemDomain.SudokuGame;
-import com.example.java_sudoku_game.problemDomain.Coordinates;
-import   com.example.java_sudoku_game.constants.GameState;
-import   com.example.java_sudoku_game.SudokuTextField;
+import com.example.java_sudoku_game.constants.GameState;
 
+import com.example.java_sudoku_game.problemDomain.Coordinates;
+import com.example.java_sudoku_game.problemDomain.SudokuGame;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -26,32 +25,37 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
         EventHandler<KeyEvent> {
     private final Stage stage;
     private final Group root;
-    private HashMap<Coordinates, SudokuTextField> textFieldCoordinates;
+
+    private final HashMap<Coordinates, SudokuTextField> textFieldCoordinates;
+
     private IUserInterfaceContract.EventListener listener;
+
+    //Size of the window
     private static final double WINDOW_Y = 732;
     private static final double WINDOW_X = 668;
+    //distance between window and board
     private static final double BOARD_PADDING = 50;
-    private static final double BOARD_X_AND_BOARD_Y = 576;
 
+    private static final double BOARD_X_AND_Y = 576;
     private static final Color WINDOW_BACKGROUND_COLOR = Color.rgb(0, 150, 136);
-
     private static final Color BOARD_BACKGROUND_COLOR = Color.rgb(224, 242, 241);
     private static final String SUDOKU = "Sudoku";
 
 
-    public UserInterfaceImpl(Stage stage){
+    public UserInterfaceImpl(Stage stage) {
         this.stage = stage;
         this.root = new Group();
         this.textFieldCoordinates = new HashMap<>();
         initializeUserInterface();
     }
 
+
     @Override
     public void setListener(IUserInterfaceContract.EventListener listener) {
         this.listener = listener;
     }
 
-    private void initializeUserInterface() {
+    public void initializeUserInterface() {
         drawBackground(root);
         drawTitle(root);
         drawSudokuBoard(root);
@@ -60,23 +64,28 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
         stage.show();
     }
 
-    private void drawTextFields(Group root){
+
+    private void drawTextFields(Group root) {
+        //where to start drawing the numbers
         final int xOrigin = 50;
         final int yOrigin = 50;
+        //how much to move the x or y value after each loop
         final int xAndYDelta = 64;
 
 
-        // O(N power 2)  Runtime Complexity
-
-        for(int xIndex =0; xIndex<9; xIndex++){
-            for (int yIndex =0; yIndex<9; yIndex++){
-                int x= xOrigin + xIndex * xAndYDelta;
-                int y= yOrigin + yIndex * xAndYDelta;
-
+        for (int xIndex = 0; xIndex < 9; xIndex++) {
+            for (int yIndex = 0; yIndex < 9; yIndex++) {
+                int x = xOrigin + xIndex * xAndYDelta;
+                int y = yOrigin + yIndex * xAndYDelta;
+                //draw it
                 SudokuTextField tile = new SudokuTextField(xIndex, yIndex);
 
+                //encapsulated style information
                 styleSudokuTile(tile, x, y);
 
+                //Note: Note that UserInterfaceImpl implements EventHandler<ActionEvent> in the class declaration.
+                //By passing "this" (which means the current instance of UserInterfaceImpl), when an action occurs,
+                //it will jump straight to "handle(ActionEvent actionEvent)" down below.
                 tile.setOnKeyPressed(this);
 
                 textFieldCoordinates.put(new Coordinates(xIndex, yIndex), tile);
@@ -84,19 +93,16 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
                 root.getChildren().add(tile);
             }
         }
-
     }
 
-    private void styleSudokuTile(SudokuTextField tile, int x, int y) {
+
+    private void styleSudokuTile(SudokuTextField tile, double x, double y) {
         Font numberFont = new Font(32);
         tile.setFont(numberFont);
         tile.setAlignment(Pos.CENTER);
 
-
         tile.setLayoutX(x);
-
-        tile.setLayoutX(y);
-
+        tile.setLayoutY(y);
         tile.setPrefHeight(64);
         tile.setPrefWidth(64);
 
@@ -105,89 +111,82 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
 
 
 
-    private void drawGridLines(Group root){
+    private void drawGridLines(Group root) {
+        //draw vertical lines starting at 114x and 114y:
         int xAndY = 114;
         int index = 0;
-        int thickness = 0;
         while (index < 8) {
+            int thickness;
             if (index == 2 || index == 5) {
                 thickness = 3;
             } else {
                 thickness = 2;
-
             }
-        }
-        Rectangle verticalLine = getLine(
-                xAndY + 64 * index,
-                BOARD_PADDING,
-                BOARD_X_AND_BOARD_Y,
-                thickness
-        );
 
-        Rectangle horizantalLine = getLine(
-                xAndY + 64 * index,
-                BOARD_PADDING,
-                BOARD_X_AND_BOARD_Y,
-                thickness
-        );
-        root.getChildren().addAll(
-                verticalLine,
-                horizantalLine
-        );
-        index++;
+            Rectangle verticalLine = getLine(
+                    xAndY + 64 * index,
+                    BOARD_PADDING,
+                    BOARD_X_AND_Y,
+                    thickness
+            );
+
+            Rectangle horizontalLine = getLine(
+                    BOARD_PADDING,
+                    xAndY + 64 * index,
+                    thickness,
+                    BOARD_X_AND_Y
+            );
+
+            root.getChildren().addAll(
+                    verticalLine,
+                    horizontalLine
+            );
+
+            index++;
+        }
     }
 
-    private Rectangle getLine(
-            double x,
-            double y,
-            double height,
-            double width
-    ){
-        Rectangle line  = new Rectangle();
 
-        line.setX(x) ;
-        line.setY(y) ;
-        line.setHeight(height) ;
-        line.setWidth(width) ;
+    public Rectangle getLine(double x, double y, double height, double width){
+        Rectangle line = new Rectangle();
 
-        line.setFill((Color.BLACK));
+        line.setX(x);
+        line.setY(y);
+
+        line.setHeight(height);
+        line.setWidth(width);
+
+        line.setFill(Color.BLACK);
         return line;
 
     }
 
 
-
     private void drawBackground(Group root) {
-        Scene scene = new Scene(this.root, WINDOW_X, WINDOW_Y);
+        Scene scene = new Scene(root, WINDOW_X, WINDOW_Y);
         scene.setFill(WINDOW_BACKGROUND_COLOR);
         stage.setScene(scene);
     }
 
 
-
-
-    private void drawSudokuBoard(Group root){
-     Rectangle boardBackground = new Rectangle();
-     boardBackground.setX(BOARD_PADDING);
-     boardBackground.setY(BOARD_PADDING);
-
-     boardBackground.setWidth(BOARD_X_AND_BOARD_Y);
-     boardBackground.setHeight(BOARD_X_AND_BOARD_Y);
-
-     boardBackground.setFill(BOARD_BACKGROUND_COLOR);
-     root.getChildren().addAll(boardBackground);
-
+    private void drawSudokuBoard(Group root) {
+        Rectangle boardBackground = new Rectangle();
+        boardBackground.setX(BOARD_PADDING);
+        boardBackground.setY(BOARD_PADDING);
+        boardBackground.setWidth(BOARD_X_AND_Y);
+        boardBackground.setHeight(BOARD_X_AND_Y);
+        boardBackground.setFill(BOARD_BACKGROUND_COLOR);
+        root.getChildren().add(boardBackground);
     }
 
-    private void drawTitle( Group root){
-
-        Text title =  new Text(235, 690, SUDOKU);
+    private void drawTitle(Group root) {
+        Text title = new Text(235, 690, SUDOKU);
         title.setFill(Color.WHITE);
         Font titleFont = new Font(43);
+        title.setFont(titleFont);
         root.getChildren().add(title);
-
-
     }
+
 
     @Override
     public void updateSquare(int x, int y, int input) {
@@ -216,6 +215,8 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
                         value
                 );
 
+                //If a given tile has a non-zero value and the state of the game is GameState.NEW, then mark
+                //the tile as read only. Otherwise, ensure that it is NOT read only.
                 if (game.getGameState() == GameState.NEW){
                     if (value.equals("")) {
                         tile.setStyle("-fx-opacity: 1;");
@@ -228,13 +229,13 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
             }
         }
     }
+
     @Override
-    public void showDialog(String message){
-        Alert dialog  = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.OK);
+    public void showDialog(String message) {
+        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.OK);
         dialog.showAndWait();
 
         if (dialog.getResult() == ButtonType.OK) listener.onDialogClick();
-
     }
 
     @Override
@@ -242,6 +243,7 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
         Alert dialog = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
         dialog.showAndWait();
     }
+
 
     @Override
     public void handle(KeyEvent event) {
@@ -262,9 +264,10 @@ public class UserInterfaceImpl implements IUserInterfaceContract.View,
             } else if (event.getCode() == KeyCode.BACK_SPACE) {
                 handleInput(0, event.getSource());
             } else {
-                ((TextField) event.getSource()).setText("");
+                ((TextField)event.getSource()).setText("");
             }
         }
+
         event.consume();
     }
 

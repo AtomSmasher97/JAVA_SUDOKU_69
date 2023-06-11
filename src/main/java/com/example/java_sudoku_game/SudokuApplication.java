@@ -19,7 +19,6 @@ public class SudokuApplication extends Application {
 
         try {
             SudokuBuildLogic.build(uiImpl);
-            primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
